@@ -1,0 +1,12 @@
+# C# Build Output
+[Bb]in/
+[Oo]bj/
+
+# IDE & Editor Files
+.vs/
+.vscode/
+*.user
+
+# Project specific ignore
+/Sync.log
+/Replica/
