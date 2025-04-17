@@ -1,8 +1,7 @@
 {
   "profiles": {
     "TestTask": {
-      "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\ameli\\Documents\\GitHub\\QATest\\TestTask\\Source\" \"C:\\Users\\ameli\\Documents\\GitHub\\QATest\\TestTask\\Replica\" 5"
+      "commandName": "Project"
     }
   }
 }
