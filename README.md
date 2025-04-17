@@ -9,6 +9,7 @@ A C# program that Synchronize a Source folder to a Replica folder.
 # How to run
 - Download the repository;
 - Ensure that you have Visual Studio or any C# compatible IDE installed on your computer;
+- Provide the required arguments via the command line.
 - Run the project;
 - Add, delete or modify the files in the Source folder.
 
