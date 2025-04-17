@@ -11,8 +11,4 @@
     <None Remove="Source\File1.txt" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Source\" />
-  </ItemGroup>
-
 </Project>
