@@ -9,17 +9,51 @@ namespace TestTask
     public class SyncProgram
     {
         //Log file path
-        private const string log_File = "Sync.log";
-        private const int syncIntervalSeconds = 5;
+        private static string logFile;
+        private static int syncIntervalSeconds;
 
-        public static void Main()
+        public static void Main(string[] args)
         {
-            //Gets project root directory 
-            string projectDir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-            //Path for source and replica folders
-            string sourceFolder = Path.Combine(projectDir, "Source");
-            string replicaFolder = Path.Combine(projectDir, "Replica");
-            Console.WriteLine("Folder Sync");
+            //Check if there are enough arguments provided for source folder, replica folder, and sync interval
+            if (args.Length < 3)
+            {
+                //show the user instructions of usage in case he didnt provide enough arguments
+                Console.WriteLine("Usage: <sourceFolder> <replicaFolder> <syncIntervalSeconds> [<logFilePath>]");
+                Console.ReadLine();
+                return;
+            }
+
+            //Parse arguments.
+            //Path to the Source folder to Sync from and path for the Replica folder to sync to
+            string sourceFolder = args[0];
+            string replicaFolder = args[1];
+            
+            if (!int.TryParse(args[2], out syncIntervalSeconds))
+            {
+                Console.WriteLine("Error: Sync interval must be a number");
+                return;
+            }
+            //Set the log file path, uses default if one is not provided
+            logFile = args.Length > 3 ? args[3]: "SyncFile.log";
+
+            Console.WriteLine($"Source folder: {sourceFolder}");
+            Console.WriteLine($"Replica folder: {replicaFolder}");
+            Console.WriteLine($"Synchronization interval {syncIntervalSeconds} seconds");
+            Console.WriteLine($"Log File {logFile}");
+
+            //validate folders
+            if(!Directory.Exists(sourceFolder))
+            {
+                Console.WriteLine($"Error: Source folder not found: {sourceFolder}");
+                Directory.CreateDirectory(sourceFolder);
+                Console.WriteLine($"Source folder created: {sourceFolder}");
+            }
+
+            if (!Directory.Exists(replicaFolder))
+            {
+                Directory.CreateDirectory(replicaFolder);
+                Console.WriteLine($"Replica folder created: {replicaFolder}");
+            }
 
             //Timer that triggers SyncFolders() at specific intervals
             using (var timer = new System.Timers.Timer(syncIntervalSeconds * 1000))
@@ -37,12 +71,14 @@ namespace TestTask
         //List to track the state of the source folder files between Synchronizations
         private static List<string> previousFiles = new();
 
+        //Synchronizes the Source folder with the Replica folder
         private static void SyncFolders(string sourceFolder, string replicaFolder)
         {
             try
             {
-                //detects new files on the source folder
+                //detects the files on the source folder
                 var currentFiles = Directory.GetFiles(sourceFolder, "*", SearchOption.AllDirectories);
+                //Detects new files by comparing with the previous files
                 foreach (var file in currentFiles)
                 {
                     if (previousFiles.Count > 0 && !previousFiles.Contains(file))
@@ -59,7 +95,7 @@ namespace TestTask
                     return;
                 }
 
-                //Copy/Update files
+                //Copy new or update files from Source folder to Replica folder
                 foreach (var sourceFile in Directory.EnumerateFiles(sourceFolder, "*", SearchOption.AllDirectories))
                 {
                     var destFile = sourceFile.Replace(sourceFolder, replicaFolder);
@@ -98,9 +134,10 @@ namespace TestTask
         {
             string logEntry = $"{DateTime.Now:u} {message}";
             Console.WriteLine(logEntry);
-            File.AppendAllText(log_File, logEntry + Environment.NewLine);
+            File.AppendAllText(logFile, logEntry + Environment.NewLine);
         }
 
+        //Compares 2 files to see if they are identical using SHA256 hashing
         private static bool FilesAreEqual(String file1, string file2)
         {
             //checks file existence and size
